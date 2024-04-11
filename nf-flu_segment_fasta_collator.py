@@ -74,8 +74,10 @@ if __name__ == '__main__':
     parser.add_argument('-t','--types', help='Specify which flu types you wish to collate. Options are: "a", "b", "mix", or "separate" (either lowercase or UPPERCASE). \
                         Default is "separate", which will generate separate multifastas for both Influenza A and Influenza B. \
                         "mix" will collate both types into the same multifasta. "a" or "b" will collate only the segments of the specified Influenza type.')
-    parser.add_argument('-s','--segments', help='Specify which segments you wish to collate into a multifasta. \
-                        Options are: "ha", "na", or "all". Default is "ha".')
+    parser.add_argument('-s','--segments', nargs='+', help='Specify which segments you wish to collate into a multifasta. \
+                        Options are: "pb2","pb1","pa","ha","np","na","m","ns", or "all".\
+                         A separate multifasta file will be created for each segment specified.\
+                         If not specified, will default to "ha".')
     parser.add_argument('-o','--output_dir', help='Path specifiying where to save the output file. If none is given, output file will be saved in path specified \
                         in the input argument (e.g. the nf-flu output folder).')
     parser.add_argument('-b','--output_basename', help='Basename of the output filename. If none is given, default will be "_segments.fasta", therefore output file will \
@@ -102,21 +104,27 @@ if __name__ == '__main__':
     
     # Set the segments to be collated
     if args.segments is None:
-        segment = ['ha']
+        segments = ['ha']
     
     else:
-        segment = args.segments.lower()
-
-        segment_options = ['ha','na','all']
-        while segment not in segment_options:
-            segment = input(f'You must specify a vaild segment, options are: "ha", "na", or "all". You entered: {args.segments}\nPlease try again: ')
-
-        if segment == 'ha':
-            segment = ['ha']
-        elif segment == 'na':
-            segment = ['na']
+        segments = [s.lower() for s in args.segments]
+    
+        if segments == ['all']:
+            segments = ['pb2','pb1','pa','ha','np','na','m','ns']
+    
         else:
-            segment = ['pb2','pb1','pa','ha','np','na','m','ns']
+            segments = [s for s in segments if s != 'all']
+            segment_options = ['pb2','pb1','pa','ha','np','na','m','ns']
+            for s in segments:
+                if s not in segment_options:
+                    sys.exit(f'You entered an invalid segment: {s}\nOptions are: "pb2","pb1","pa","ha","np","na","m","ns", or "all".\nPlease try again.')
+
+
+    
+    
+    if not isinstance(segments, list):
+        segments = [segments]
+        
 
     
     # Set the output directory, and make one if it doesn't exist
@@ -132,4 +140,4 @@ if __name__ == '__main__':
     
 
     # Run the main function
-    main(args.input, flu_type, segment, args.output_dir, args.output_basename, args.quiet)
+    main(args.input, flu_type, segments, args.output_dir, args.output_basename, args.quiet)
