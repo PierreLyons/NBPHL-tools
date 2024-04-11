@@ -25,9 +25,7 @@ def make_fasta_segments_multifasta(segments, sample_paths_list, flu_type, output
                         with open(fasta_path, 'r') as f:
                             fasta_list.append(f'>{sample_name}\n')
                             fasta_list.append(f.readlines()[1])
-                """ else:
-                    if not quiet:
-                        print(f'No fasta files found for Influenza {flu_type.upper()} {segment.upper()} segment in sample {sample_name}.') """
+
     
             output_filename = f'{outfile_prefix}{segment.upper()}{output_basename}'
             with open(os.path.join(output_dir, output_filename), 'w') as fp:
@@ -119,14 +117,10 @@ if __name__ == '__main__':
                 if s not in segment_options:
                     sys.exit(f'You entered an invalid segment: {s}\nOptions are: "pb2","pb1","pa","ha","np","na","m","ns", or "all".\nPlease try again.')
 
-
-    
-    
+ 
     if not isinstance(segments, list):
         segments = [segments]
-        
-
-    
+ 
     # Set the output directory, and make one if it doesn't exist
     if args.output_dir is None:
         args.output_dir = args.input
